@@ -341,6 +341,7 @@ scheduler(void)
       // before jumping back to us.
       c->proc = p;
       switchuvm(p);
+      p->prio = 10;
       p->state = RUNNING;
 
       swtch(&(c->scheduler), p->context);
@@ -555,7 +556,7 @@ cps(void)
       state = states[p->state];
     else
       state = "undef ";
-    cprintf("(%d, %s, %s)\n", p->pid, p->name, state);
+    cprintf("(%d, %s, %s, %d)\n", p->pid, p->name, state, p->prio);
   }
   return 0;
 }
