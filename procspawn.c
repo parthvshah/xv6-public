@@ -25,11 +25,11 @@ main(int argc, char *argv[])
       // child
       printf(1, "Child process %d\n", getpid());
       
-      for(y=0; y<400.0; y+=0.1) {
+      for(y=0; y<4000.0; y+=0.1) {
         printf(1, ".");
-        for(x=0; x<40000.0; x+=0.1) {
+        for(x=0; x<400000.0; x+=0.1) {
           z+= x;
-	  // while(z>0) z--;
+	  while(z>0) z--;
         }
       }
 
