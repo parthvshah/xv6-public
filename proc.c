@@ -88,6 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->prio = 10;
 
   release(&ptable.lock);
 
@@ -341,7 +342,6 @@ scheduler(void)
       // before jumping back to us.
       c->proc = p;
       switchuvm(p);
-      p->prio = 10;
       p->state = RUNNING;
 
       swtch(&(c->scheduler), p->context);
@@ -559,4 +559,21 @@ cps(void)
     cprintf("(%d, %s, %s, %d)\n", p->pid, p->name, state, p->prio);
   }
   return 0;
+}
+
+int
+chpr(int pid, int priority)
+{
+  struct proc *p;
+  if(pid < 0 || (priority > 20 || priority < 0))
+	return -1;
+  acquire(&ptable.lock);
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid)
+      p->prio = priority;
+  }
+
+  release(&ptable.lock);
+  return pid;
 }
