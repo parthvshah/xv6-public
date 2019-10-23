@@ -32,6 +32,19 @@ idtinit(void)
   lidt(idt, sizeof(idt));
 }
 
+int lazy_page_allocation(uint addr) {
+  uint a = PGROUNDDOWN(addr);
+  char *mem = kalloc();
+  if (mem == 0) {
+    return -1;
+  }
+  memset(mem, 0, PGSIZE);
+  if (mappages(myproc()->pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W | PTE_U) < 0) {
+    return -1;
+  }
+  return 0;
+}
+
 //PAGEBREAK: 41
 void
 trap(struct trapframe *tf)
@@ -76,6 +89,11 @@ trap(struct trapframe *tf)
     cprintf("cpu%d: spurious interrupt at %x:%x\n",
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
+    break;
+  case T_PGFLT:
+    if (lazy_page_allocation(rcr2()) < 0) {
+      myproc()->killed = 1;
+    }
     break;
 
   //PAGEBREAK: 13
